@@ -1,0 +1,1 @@
+E:\Programs\Python36\python.exe 1001_tracker.py

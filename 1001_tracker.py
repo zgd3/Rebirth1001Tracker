@@ -22,6 +22,7 @@ global fontsize, savepath, window_width
 fontsize = config.get('options', 'font_size')
 savepath = config.get('options', 'save_path')
 window_width = config.getint('options', 'window_width')
+tinyicons = config.getint('options', 'tiny_icons')
 
 
 # The Item1001Tracker class
@@ -51,9 +52,14 @@ class Item1001Tracker(tk.Frame):
         
         # Initialize the photo dictionary
         self.photos = {}
-        for item_id in self.all_item_ids:
-            image_path = 'collectibles/collectibles_' + item_id + '.png'
-            self.photos[item_id] = tk.PhotoImage(file=image_path)
+        if tinyicons == 1:
+            for item_id in self.all_item_ids:
+                image_path = 'collectibles/16px/collectibles_' + item_id + '.png'
+                self.photos[item_id] = tk.PhotoImage(file=image_path)
+        else:        
+            for item_id in self.all_item_ids:
+                image_path = 'collectibles/collectibles_' + item_id + '.png'
+                self.photos[item_id] = tk.PhotoImage(file=image_path)
         
         # Initialize a new GUI window
         self.parent = parent
@@ -98,11 +104,18 @@ class Item1001Tracker(tk.Frame):
 
         self.canvas.delete("all")
 
-        x = 34  # We start an extra 2 pixels to the right so that the left border will show
-        y = 34  # We start an extra 2 pixels lower so that the top border will show
-        draw_x = x
-        draw_y = y
-        draw_w = 64
+        if tinyicons == 1:
+            x = 18  # We start an extra 2 pixels to the right so that the left border will show
+            y = 18  # We start an extra 2 pixels lower so that the top border will show
+            draw_x = x
+            draw_y = y
+            draw_w = 32
+        else:
+            x = 34  # We start an extra 2 pixels to the right so that the left border will show
+            y = 34  # We start an extra 2 pixels lower so that the top border will show
+            draw_x = x
+            draw_y = y
+            draw_w = 64
         window_width = self.window.winfo_width()
         columns = int(math.floor(window_width / (draw_w + 1)))
         
@@ -110,8 +123,11 @@ class Item1001Tracker(tk.Frame):
         for item_id in range(1,len(self.items_from_file)+1):
             if item_id not in sorted(self.items_found_from_file.keys()) and item_id not in bad_ids:
                 self.canvas.create_image((draw_x, draw_y), image=self.photos["{0:03d}".format(item_id)])
-                self.canvas.create_rectangle(draw_x - 32, draw_y - 32, draw_x + 32, draw_y + 32)
-
+                if tinyicons == 1:
+                    self.canvas.create_rectangle(draw_x - 16, draw_y - 16, draw_x + 16, draw_y + 16)
+                else:
+                    self.canvas.create_rectangle(draw_x - 32, draw_y - 32, draw_x + 32, draw_y + 32)
+                
                 draw_x += draw_w
                 if draw_x == x + (draw_w * columns):
                     draw_x = x
@@ -162,14 +178,14 @@ class Item1001Tracker(tk.Frame):
 # The main program
 if __name__ == '__main__':
     # Initialize the root GUI
-	root = tk.Tk()
-	root.withdraw()  # Hide the GUI
-	if savepath == "":
-		config.set('options', 'save_path', filedialog.askopenfilename()) #Ask for game file if not found in options.ini
-		with open('options.ini', 'w') as optionsfile:
-			config.write(optionsfile) #Write game file path to options.ini
-	else:
-		game_data_file = savepath #If set, read from options.ini    
+    root = tk.Tk()
+    root.withdraw()  # Hide the GUI
+    if savepath == "":
+        config.set('options', 'save_path', filedialog.askopenfilename()) #Ask for game file if not found in options.ini
+        with open('options.ini', 'w') as optionsfile:
+            config.write(optionsfile) #Write game file path to options.ini
+    else:
+        game_data_file = savepath #If set, read from options.ini    
     # Show the GUI
-	Item1001Tracker(root)
-	root.mainloop()
+    Item1001Tracker(root)
+    root.mainloop()
